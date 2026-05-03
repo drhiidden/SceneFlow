@@ -730,19 +730,13 @@ public class ScenarioRunner {
 
 ---
 
-## Success Stories
+## Real-World Results
 
-**Real-world API Testing:**
-- 12 scenarios written in ~3 hours
-- Detected 3 test bugs (fixed)
-- Validated 21+ endpoints
-- 100% success rate
-- Ready for CI/CD
-
-**ROI Calculation:**
-- Manual testing: 15 hours/month → $750/month @ $50/hr
-- SceneFlow: 2 minutes/month → $2/month
-- **Savings: $748/month ($9,000/year)**
+Tested against an internal blog + e-commerce API:
+- 12 scenarios written covering full user journeys
+- 21+ endpoints validated end-to-end
+- 3 integration bugs found that unit tests missed
+- Ready for CI/CD in the same session
 
 ---
 
