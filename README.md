@@ -157,7 +157,7 @@ mvn test -Dorg.slf4j.simpleLogger.defaultLogLevel=info
 
 ---
 
-## First Execution Results (WikiRAP API)
+## First Execution Results
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -475,8 +475,8 @@ api.get("/api/protected")
 ### Query Parameters
 
 ```java
-api.get("/api/artists/search")
-    .withQuery("q", "canserbero")
+api.get("/api/products/search")
+    .withQuery("q", "my-product")
     .withQuery("page", 0)
     .withQuery("size", 20)
     .execute();
@@ -485,9 +485,9 @@ api.get("/api/artists/search")
 ### Conditional Waiting
 
 ```java
-waitFor("Artist cache refreshed", () -> {
-    var artist = api.get("/api/artists/1").execute().asMap();
-    return artist.get("cachedAt") != null;
+waitFor("Product cache refreshed", () -> {
+    var product = api.get("/api/products/1").execute().asMap();
+    return product.get("cachedAt") != null;
 }, 5000); // 5s timeout
 ```
 
@@ -499,22 +499,22 @@ waitFor("Artist cache refreshed", () -> {
 $ mvn test -Dtest=CMSWorkflowNoAuthScenario
 
 [INFO] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[INFO] ▶ SCENARIO: Admin publishes news → appears in listings
+[INFO] ▶ SCENARIO: Admin publishes article → appears in listings
 [INFO]   Environment: dev
-[INFO]   Base URL: http://localhost:8082
+[INFO]   Base URL: http://localhost:8080
 [INFO] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[INFO] ▶ POST /api/news (expected: 201)
-[INFO] ✓ /api/news (status: 201) [42ms]
-[INFO]   ✓ Created news with ID: 42
-[INFO] ▶ GET /api/news (expected: 200)
-[INFO] ✓ /api/news (status: 200) [8ms]
-[INFO]   ✓ News appears in general listing
-[INFO] ▶ GET /api/news/category/BATALLAS (expected: 200)
-[INFO] ✓ /api/news/category/BATALLAS (status: 200) [6ms]
-[INFO]   ✓ News appears in BATALLAS category
-[INFO] ▶ DELETE /api/news/42 (expected: any)
-[INFO] ✓ /api/news/42 (status: 204) [5ms]
-[INFO]   [Cleanup] Deleted news #42
+[INFO] ▶ POST /api/articles (expected: 201)
+[INFO] ✓ /api/articles (status: 201) [42ms]
+[INFO]   ✓ Created article with ID: 42
+[INFO] ▶ GET /api/articles (expected: 200)
+[INFO] ✓ /api/articles (status: 200) [8ms]
+[INFO]   ✓ Article appears in general listing
+[INFO] ▶ GET /api/articles/category/TECHNOLOGY (expected: 200)
+[INFO] ✓ /api/articles/category/TECHNOLOGY (status: 200) [6ms]
+[INFO]   ✓ Article appears in TECHNOLOGY category
+[INFO] ▶ DELETE /api/articles/42 (expected: any)
+[INFO] ✓ /api/articles/42 (status: 204) [5ms]
+[INFO]   [Cleanup] Deleted article #42
 [INFO] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [INFO] ✓ SCENARIO COMPLETED (300ms)
 [INFO] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -696,7 +696,7 @@ public class ScenarioRunner {
 
 ## Success Stories
 
-**WikiRAP API Testing:**
+**Real-world API Testing:**
 - 12 scenarios written in ~3 hours
 - Detected 3 test bugs (fixed)
 - Validated 21+ endpoints
@@ -764,6 +764,6 @@ mvn test
 **Tagline:** Test user journeys, not just endpoints  
 **Status:** Production Ready ✅  
 **Author:** @drhiidden  
-**Project:** WikiRAP API Testing Suite  
+**Project:** SceneFlow — Scenario-Based API Testing  
 
 **Built for developers who care about business flows, not just response codes.**

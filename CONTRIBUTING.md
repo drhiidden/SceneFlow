@@ -167,8 +167,8 @@ mvn test
 ### Docker
 
 ```bash
-# Terminal 1: arrancar backend
-cd ../FSG-WIKIRAP/back
+# Terminal 1: start your backend
+cd ../your-backend
 docker-compose up -d
 mvn spring-boot:run -Dspring-boot.run.profiles=docker
 
@@ -180,7 +180,7 @@ mvn test -Dtest.env=docker
 ### Staging/Prod (read-only)
 
 ```bash
-export API_BASE_URL=https://staging.wikirap.com
+export API_BASE_URL=https://staging.your-api.com
 export ADMIN_USERNAME=test-user
 export ADMIN_PASSWORD=secret
 

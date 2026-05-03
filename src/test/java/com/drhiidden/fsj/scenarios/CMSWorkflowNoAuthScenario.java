@@ -10,78 +10,79 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**
- * Escenarios funcionales del flujo CMS (News + Hero Carousel).
- * SIN AUTH: Usa endpoints permitAll() configurados en SecurityConfig.
+ * Example CMS workflow scenarios without authentication.
+ *
+ * Demonstrates SceneFlow for testing create → verify → cleanup flows
+ * on endpoints configured with permitAll() security.
+ *
+ * Adapt entity fields, categories and endpoint paths to match your API.
  */
 @Slf4j
 @DisplayName("CMS Workflow Scenarios (No Auth)")
 class CMSWorkflowNoAuthScenario extends ScenarioRunner {
-    
+
     @Test
-    @DisplayName("Scenario: Crear noticia y verificar en listados (NO AUTH)")
-    void publishNews_appearsInListings_noAuth() {
-        // WHEN: Crea noticia (endpoint permitAll)
-        var newsData = Map.of(
-            "title", "FMS Internacional 2026 - Semifinales E2E Test",
-            "content", "Análisis completo de las semifinales con estadísticas",
-            "excerpt", "Las semifinales más reñidas de la historia",
-            "category", "BATALLAS",
+    @DisplayName("Scenario: Create article and verify it appears in listings")
+    void publishArticle_appearsInListings_noAuth() {
+        var articleData = Map.of(
+            "title", "SceneFlow Demo Article - E2E Test",
+            "content", "This article was created by SceneFlow during an automated test run.",
+            "excerpt", "SceneFlow end-to-end test article",
+            "category", "TECHNOLOGY",
             "date", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
             "featured", false
         );
-        
-        context.startTiming("create-news");
-        var createResponse = api.post("/api/news")
-            .withBody(newsData)
+
+        context.startTiming("create-article");
+        var createResponse = api.post("/api/articles")
+            .withBody(articleData)
             .expectStatus(201)
             .execute();
-        context.endTiming("create-news");
-        
-        Long newsId = createResponse.extractId();
-        context.store("news-id", newsId);
-        
+        context.endTiming("create-article");
+
+        Long articleId = createResponse.extractId();
+        context.store("article-id", articleId);
+
         createResponse
             .assertFieldNotNull("title")
-            .assertField("category", "BATALLAS")
+            .assertField("category", "TECHNOLOGY")
             .assertField("featured", false);
-        
-        log.info("✓ Noticia creada con ID: {}", newsId);
-        
-        // Wait for DB commit
+
+        log.info("✓ Article created with ID: {}", articleId);
+
         waitForDbCommit();
-        
-        // THEN: Aparece en listado general
-        var newsList = api.get("/api/news")
+
+        // Verify it appears in the general listing
+        var articleList = api.get("/api/articles")
             .expectStatus(200)
             .execute();
-        
-        newsList
+
+        articleList
             .assertFieldExists("content")
             .assertArrayNotEmpty("content");
-        
-        log.info("✓ Noticia aparece en listado general");
-        
-        // AND: Aparece en listado por categoría
-        var categoryNews = api.get("/api/news/category/BATALLAS")
+
+        log.info("✓ Article appears in general listing");
+
+        // Verify it appears in the category listing
+        var categoryArticles = api.get("/api/articles/category/TECHNOLOGY")
             .expectStatus(200)
             .execute()
             .asList();
-        
-        boolean found = categoryNews.stream()
-            .anyMatch(n -> newsId.equals(((Number) n.get("id")).longValue()));
-        
+
+        boolean found = categoryArticles.stream()
+            .anyMatch(a -> articleId.equals(((Number) a.get("id")).longValue()));
+
         if (found) {
-            log.info("✓ Noticia aparece en categoría BATALLAS");
+            log.info("✓ Article appears in TECHNOLOGY category");
         } else {
-            throw new AssertionError("Noticia no encontrada en categoría BATALLAS");
+            throw new AssertionError("Article not found in TECHNOLOGY category");
         }
     }
-    
+
     @Test
-    @DisplayName("Scenario: Toggle featured news (NO AUTH)")
-    void featureNews_togglesCorrectly() {
-        // GIVEN: Noticia existente
-        var newsId = api.post("/api/news")
+    @DisplayName("Scenario: Toggle featured flag on article")
+    void featureArticle_togglesCorrectly() {
+        var articleId = api.post("/api/articles")
             .withBody(Map.of(
                 "title", "Test Featured Toggle",
                 "content", "Content",
@@ -92,94 +93,87 @@ class CMSWorkflowNoAuthScenario extends ScenarioRunner {
             .expectStatus(201)
             .execute()
             .extractId();
-        
-        context.store("news-id", newsId);
-        
-        // Wait for DB commit
+
+        context.store("article-id", articleId);
+
         waitForDbCommit();
-        
-        // WHEN: Toggle featured
-        api.patch("/api/news/" + newsId + "/toggle-featured")
+
+        api.patch("/api/articles/" + articleId + "/toggle-featured")
             .expectStatus(200)
             .execute()
             .assertField("featured", true);
-        
-        log.info("✓ Noticia marcada como destacada");
-        
-        // THEN: Aparece en /featured
-        var featured = api.get("/api/news/featured")
+
+        log.info("✓ Article marked as featured");
+
+        var featured = api.get("/api/articles/featured")
             .expectStatus(200)
             .execute()
             .asList();
-        
+
         boolean inFeatured = featured.stream()
-            .anyMatch(n -> newsId.equals(((Number) n.get("id")).longValue()));
-        
+            .anyMatch(a -> articleId.equals(((Number) a.get("id")).longValue()));
+
         if (inFeatured) {
-            log.info("✓ Noticia aparece en /featured");
+            log.info("✓ Article appears in /featured");
         }
     }
-    
+
     @Test
-    @DisplayName("Scenario: Crear y activar hero carousel (NO AUTH)")
+    @DisplayName("Scenario: Create hero carousel item and verify in active list")
     void createHeroCarousel_appearsInActive() {
-        // WHEN: Crea carousel item
         var carouselData = Map.of(
             "mediaUrl", "https://example.com/test-carousel.jpg",
             "mediaType", "IMAGE",
-            "altText", "Test Carousel E2E",
+            "altText", "SceneFlow E2E Test Banner",
             "displayOrder", 99,
             "isActive", true,
-            "caption", "Testing carousel"
+            "caption", "Automated test carousel item"
         );
-        
+
         var createResponse = api.post("/api/cms/hero-carousel")
             .withBody(carouselData)
             .expectStatus(201)
             .execute();
-        
+
         Long carouselId = createResponse.extractId();
         context.store("carousel-id", carouselId);
-        
+
         createResponse
             .assertField("mediaType", "IMAGE")
             .assertField("displayOrder", 99)
             .assertField("isActive", true);
-        
-        log.info("✓ Carousel item creado con ID: {}", carouselId);
-        
-        // Wait for DB commit
+
+        log.info("✓ Carousel item created with ID: {}", carouselId);
+
         waitForDbCommit();
-        
-        // THEN: Aparece en /active
+
         var activeItems = api.get("/api/cms/hero-carousel/active")
             .expectStatus(200)
             .execute()
             .asList();
-        
+
         boolean found = activeItems.stream()
             .anyMatch(c -> carouselId.equals(((Number) c.get("id")).longValue()));
-        
+
         if (found) {
-            log.info("✓ Carousel item aparece en /active");
+            log.info("✓ Carousel item appears in /active");
         } else {
-            throw new AssertionError("Carousel item no encontrado en /active");
+            throw new AssertionError("Carousel item not found in /active");
         }
     }
-    
+
     @Override
     protected void cleanup() {
-        // Cleanup sin auth (endpoints permitAll)
-        if (context.has("news-id")) {
-            Long newsId = context.get("news-id");
+        if (context.has("article-id")) {
+            Long articleId = context.get("article-id");
             try {
-                api.delete("/api/news/" + newsId).execute();
-                log.info("  [Cleanup] Deleted news #{}", newsId);
+                api.delete("/api/articles/" + articleId).execute();
+                log.info("  [Cleanup] Deleted article #{}", articleId);
             } catch (Exception e) {
-                log.warn("  [Cleanup] Could not delete news #{}: {}", newsId, e.getMessage());
+                log.warn("  [Cleanup] Could not delete article #{}: {}", articleId, e.getMessage());
             }
         }
-        
+
         if (context.has("carousel-id")) {
             Long carouselId = context.get("carousel-id");
             try {

@@ -20,7 +20,7 @@ mvn test -Dtest=BackwardCompatibilityTest
 mvn test
 ```
 
-**That's it!** Framework is pre-configured for WikiRAP API.
+**That's it!** Update `test-dev.properties` to point to your API.
 
 ---
 
@@ -34,8 +34,8 @@ $ mvn test -Dtest=BackwardCompatibilityTest
 [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS (0.2s)
 
-✓ Artist API: required fields present
-✓ News API: category enum stable
+✓ Product API: required fields present
+✓ Article API: category enum stable
 ✓ Error responses: consistent structure
 ✓ Pagination: format unchanged
 ✓ Health endpoint: always available
@@ -67,21 +67,21 @@ $ mvn test -Dtest=CMSWorkflowNoAuthScenario
 [INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS (0.9s)
 
-[main] INFO ▶ POST /api/news (expected: 201)
-[main] INFO ✓ /api/news (status: 201) [42ms]
-[main] INFO   ✓ Created news with ID: 42
+[main] INFO ▶ POST /api/articles (expected: 201)
+[main] INFO ✓ /api/articles (status: 201) [42ms]
+[main] INFO   ✓ Created article with ID: 42
 
-[main] INFO ▶ PATCH /api/news/42/toggle-featured (expected: 200)
-[main] INFO ✓ /api/news/42/toggle-featured (status: 200) [18ms]
-[main] INFO   ✓ News featured successfully
+[main] INFO ▶ PATCH /api/articles/42/toggle-featured (expected: 200)
+[main] INFO ✓ /api/articles/42/toggle-featured (status: 200) [18ms]
+[main] INFO   ✓ Article featured successfully
 
-[main] INFO ▶ GET /api/news/featured (expected: 200)
-[main] INFO ✓ /api/news/featured (status: 200) [8ms]
-[main] INFO   ✓ News appears in featured section
+[main] INFO ▶ GET /api/articles/featured (expected: 200)
+[main] INFO ✓ /api/articles/featured (status: 200) [8ms]
+[main] INFO   ✓ Article appears in featured section
 
-[main] INFO ▶ DELETE /api/news/42 (expected: any)
-[main] INFO ✓ /api/news/42 (status: 204) [5ms]
-[main] INFO   [Cleanup] Deleted news #42
+[main] INFO ▶ DELETE /api/articles/42 (expected: any)
+[main] INFO ✓ /api/articles/42 (status: 204) [5ms]
+[main] INFO   [Cleanup] Deleted article #42
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✓ SCENARIO COMPLETED (300ms)
@@ -245,32 +245,32 @@ assertEquals("expected", resource.get("field"));
 
 ```java
 // Search all
-var results = api.get("/api/artists/search")
-    .withQuery("q", "canserbero")
+var results = api.get("/api/products/search")
+    .withQuery("q", "my-product")
     .execute()
     .asList();
 
 // Filter
-var artist = results.stream()
-    .filter(a -> "Canserbero".equals(a.get("name")))
+var product = results.stream()
+    .filter(p -> "My Product".equals(p.get("name")))
     .findFirst()
     .orElseThrow();
 
 // Assert
-assertEquals("Venezuela", artist.get("country"));
+assertEquals("active", product.get("status"));
 ```
 
 ### Pattern 3: Async Wait
 
 ```java
 // Create
-Long newsId = api.post("/api/news").execute().extractId();
+Long articleId = api.post("/api/articles").execute().extractId();
 
 // Wait for DB commit
 waitForDbCommit();
 
 // Verify (now reliable)
-api.get("/api/news/" + newsId)
+api.get("/api/articles/" + articleId)
     .expectStatus(200)
     .execute();
 ```
@@ -279,12 +279,12 @@ api.get("/api/news/" + newsId)
 
 ```java
 // Step 1
-Long artistId = api.post("/api/artists")...
-context.store("artist-id", artistId);
+Long productId = api.post("/api/products")...
+context.store("product-id", productId);
 
 // Step 2 (later in test)
-Long id = context.get("artist-id");
-api.get("/api/artists/" + id + "/albums")...
+Long id = context.get("product-id");
+api.get("/api/products/" + id + "/variants")...
 ```
 
 ---

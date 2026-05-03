@@ -172,18 +172,18 @@ SceneFlow tests **the complete flow**, catching integration bugs.
 
 ### v1.0.1 Bug Fixes
 
-**Bug #1: News Category Route**
+**Bug #1: Category Route**
 ```
-Test Expected: /api/news/by-category/BATALLAS
-Backend Actual: /api/news/category/BATALLAS
-Fix: Update test routes
+Test Expected: /api/articles/by-category/TECHNOLOGY
+Backend Actual: /api/articles/category/TECHNOLOGY
+Fix: Update test routes to match actual endpoint path
 ```
 
-**Bug #2: Artist Search Param**
+**Bug #2: Search Param Name**
 ```
 Test Sent: ?q=test
 Backend Expected: ?query=test
-Fix: Update query param name
+Fix: Update query param name in ApiClient call
 ```
 
 **Bug #3: Song Search Param**
