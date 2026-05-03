@@ -1,8 +1,11 @@
+![SceneFlow banner](docs/banner.png)
+
 # SceneFlow
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Java 21](https://img.shields.io/badge/Java-21-blue.svg)](https://openjdk.org/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
+![visitors](https://komarev.com/ghpvc/?username=drhiidden&repo=FSJ-Regressive&color=00ff88&style=flat-square)
 
 **Test user journeys, not just endpoints**
 
@@ -296,6 +299,35 @@ if (duration > 5000) {
 ---
 
 ## Architecture
+
+```mermaid
+flowchart TB
+    subgraph SceneFlow["SceneFlow Framework"]
+        SC[ScenarioRunner\nBase Class]
+        AC[ApiClient\nFluent DSL]
+        RW[ResponseWrapper\nChainable Assertions]
+        CTX[ScenarioContext\nShared State]
+        CFG[TestConfig\nMulti-Environment]
+    end
+
+    subgraph Scenarios["Your Test Scenarios"]
+        S1[CMSWorkflowScenario]
+        S2[UserJourneyScenario]
+        S3[BackwardCompatibilityTest]
+    end
+
+    subgraph Target["Target API"]
+        API[Your REST API]
+    end
+
+    S1 & S2 & S3 -->|extends| SC
+    SC --> AC
+    AC --> RW
+    AC --> CTX
+    SC --> CFG
+    AC -->|HTTP calls| API
+    API -->|responses| RW
+```
 
 ```
 FSJ-Regressive/  (SceneFlow Framework)
@@ -771,3 +803,9 @@ mvn test
 **Project:** SceneFlow — Scenario-Based API Testing  
 
 **Built for developers who care about business flows, not just response codes.**
+
+---
+
+## Methodology
+
+Developed with [HCP (Human-Code-AI Protocol)](https://github.com/haletheia/human-code-ai-protocol) — a git-native protocol for Context Engineering that keeps project knowledge versioned and traceable alongside the code.
